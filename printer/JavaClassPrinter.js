@@ -67,6 +67,7 @@ module.exports = class JavaClassPrinter {
       this.append('(');
       this.append(method.signature.arguments.join(', '));
       this.append(');');
+      this.append(method.code)
       this.newLine();
     });
   }

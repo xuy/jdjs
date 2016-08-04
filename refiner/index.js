@@ -3,6 +3,7 @@
 const util = require('../util');
 const accessFlags = require('../access-flags');
 const ConstantPool = require('./ConstantPool');
+const CodeAttribute = require('./code-attribute')
 
 class Refiner {
   constructor(cl) {
@@ -32,10 +33,20 @@ class Refiner {
     return this.cl.methods.map((methodInfo) => {
       const name = this.constantPool.extractValue(methodInfo.nameIndex);
       const methodDescriptor = this.constantPool.extractMethodDescriptor(methodInfo.descriptorIndex);
+
+      var code = methodInfo.attributes.length
+      for (let i = 0; i < methodInfo.attributes.length; ++i) {
+        var attributeName = this.constantPool.extractValue(methodInfo.attributes[i].attributeNameIndex);
+        if (attributeName === "Code") {
+          code = new CodeAttribute(methodInfo.attributes[i]);
+          break;
+        }
+      }
       return {
         signature: methodDescriptor,
         modifiers: util.modifiers(methodInfo.accessFlags, accessFlags.method),
-        name: name
+        name: name,
+        code: code,
       };
     }).filter(Boolean);
   }
